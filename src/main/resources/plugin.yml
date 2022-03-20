@@ -1,0 +1,10 @@
+name: HideThePlayer
+version: '${project.version}'
+main: me.kekschen.hidetheplayer.HideThePlayer
+api-version: 1.17
+depend:
+  - ProtocolLib
+commands:
+  hidetheplayer:
+    permission: rwm.hidetheplayer
+    usage: /hidetheplayer
