@@ -14,11 +14,35 @@ import me.kekschen.hidetheplayer.HideThePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public interface IUsernames {
+
+    default void hideUsername(Player player) {
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        if(manager == null) return;
+        Team team = manager.getMainScoreboard().getTeam(player.getName());
+        if (team == null) {
+            team = Bukkit.getScoreboardManager().getMainScoreboard().registerNewTeam(player.getName());
+        }
+        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+        team.addEntry(player.getName());
+    }
+
+    default void showUsername(Player player) {
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        if(manager == null) return;
+        Team team = manager.getMainScoreboard().getTeam(player.getName());
+        if (team != null) {
+            team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+            team.removeEntry(player.getName());
+        }
+    }
+
     default void setUsername(Player player, String username) throws InvocationTargetException {
         ProtocolManager manager = ProtocolLibrary.getProtocolManager();
         PlayerInfoData pid = new PlayerInfoData(WrappedGameProfile.fromPlayer(player), 1,

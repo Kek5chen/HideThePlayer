@@ -13,4 +13,8 @@ public interface IHidePlayerMessages {
         sender.sendMessage(HideThePlayer.PREFIX + "§c/hidetheplayer name hide <player> - §7Hide the name of the player.");
         sender.sendMessage(HideThePlayer.PREFIX + "§c/hidetheplayer name change <player> <username> - §7Change the name of the player.");
     }
+    default void sendPlayerSkinSyntax(CommandSender sender) {
+        sender.sendMessage(HideThePlayer.PREFIX + "§c/hidetheplayer skin <username> - §7Change your skin to the one specified.");
+        sender.sendMessage(HideThePlayer.PREFIX + "§c/hidetheplayer skin <player> <username> - §7Change the skin of another player to the one specified.");
+    }
 }
