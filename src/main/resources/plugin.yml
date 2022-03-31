@@ -8,3 +8,4 @@ commands:
   hidetheplayer:
     permission: rwm.hidetheplayer
     usage: /hidetheplayer
+    aliases: htp
