@@ -49,19 +49,11 @@ public class HideThePlayerCommand implements CommandExecutor, IHidePlayers, IUse
                 } else sendPlayerVisbilitySyntax(sender);
             } else if(args[0].equalsIgnoreCase("name")) {
                 if (args[1].equalsIgnoreCase("hide")) {
-                    try {
-                        setUsername(p, "");
-                        sender.sendMessage(HideThePlayer.PREFIX + "§aPlayer §e" + p.getName() + "§a's name is now hidden.");
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+                    hideUsername(p);
+                    sender.sendMessage(HideThePlayer.PREFIX + "§aPlayer §e" + p.getName() + "§a's name is now hidden.");
                 } else if (args[1].equalsIgnoreCase("show")) {
-                    try {
-                        setUsername(p, p.getName());
-                        sender.sendMessage(HideThePlayer.PREFIX + "§aPlayer §e" + p.getName() + "§a's name is now shown.");
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+                    showUsername(p);
+                    sender.sendMessage(HideThePlayer.PREFIX + "§aPlayer §e" + p.getName() + "§a's name is now shown.");
                 } else {
                     sendPlayerNameSyntax(sender);
                 }
