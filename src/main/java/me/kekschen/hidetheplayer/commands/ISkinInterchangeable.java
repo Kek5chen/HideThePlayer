@@ -5,6 +5,7 @@ import com.comphenix.protocol.wrappers.WrappedSignedProperty;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.kekschen.hidetheplayer.HideThePlayer;
+import me.kekschen.hidetheplayer.util.UserSkinData;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -17,25 +18,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
-
-class UserSkinData {
-	String name;
-	String value;
-	String signature;
-	public static UserSkinData parseUserSkinData(String skinData) {
-		JsonParser parser = new JsonParser();
-		JsonObject json = parser.parse(skinData).getAsJsonObject();
-		UserSkinData data = new UserSkinData();
-		try {
-		data.name = json.get("username").getAsString();
-		data.value = json.get("textures").getAsJsonObject().get("raw").getAsJsonObject().get("value").getAsString();
-		data.signature = json.get("textures").getAsJsonObject().get("raw").getAsJsonObject().get("signature").getAsString();
-		} catch (NullPointerException e) {
-			return null;
-		}
-		return data;
-	}
-}
 
 public interface ISkinInterchangeable {
 	HashMap<String, UserSkinData> skinDataCache = new HashMap<>();
@@ -77,7 +59,7 @@ public interface ISkinInterchangeable {
 
 		WrappedGameProfile profile = WrappedGameProfile.fromPlayer(player);
 		profile.getProperties().remove("textures", profile.getProperties().get("textures").iterator().next());
-		profile.getProperties().put("textures", new WrappedSignedProperty("textures", userSkinData.value, userSkinData.signature));
+		profile.getProperties().put("textures", new WrappedSignedProperty("textures", userSkinData.getValue(), userSkinData.getSignature()));
 		HideThePlayer plugin = HideThePlayer.getPlugin(HideThePlayer.class);
 		new BukkitRunnable() {
 			@Override
