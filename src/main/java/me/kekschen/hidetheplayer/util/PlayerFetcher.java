@@ -1,5 +1,7 @@
 package me.kekschen.hidetheplayer.util;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -13,7 +15,10 @@ import java.util.*;
 
 public class PlayerFetcher {
     private static final Map<String, UUID> UUID_MAP = new HashMap<>();
+
     private static final String MOJANG_URL = "https://api.mojang.com/users/profiles/minecraft/";
+    private static final String SKIN_URL_START = "https://sessionserver.mojang.com/session/minecraft/profile/";
+    private static final String SKIN_URL_END = "?unsigned=false";
 
     private PlayerFetcher() {}
 
@@ -24,7 +29,7 @@ public class PlayerFetcher {
 
         final JsonObject object;
         try {
-            object = getJSONData(name);
+            object = getJSONData(MOJANG_URL + name);
         } catch (final IOException exception) {
             return Optional.empty();
         }
@@ -51,10 +56,10 @@ public class PlayerFetcher {
         return Optional.of(uuid);
     }
 
-    private static JsonObject getJSONData(final String name) throws IOException {
+    private static JsonObject getJSONData(final String url) throws IOException {
         final HttpURLConnection connection;
         try {
-            connection = (HttpURLConnection) new URL(MOJANG_URL + name).openConnection();
+            connection = (HttpURLConnection) new URL(url).openConnection();
         } catch (final MalformedURLException ignored) {
             return null;
         }
@@ -78,5 +83,35 @@ public class PlayerFetcher {
         in.close();
 
         return object;
+    }
+
+    public static Optional<UserSkinData> getUserSkin(final UUID uuid) {
+        final JsonObject object;
+        try {
+            object = getJSONData(SKIN_URL_START + uuid.toString().replace("-", "") + SKIN_URL_END);
+        } catch (final IOException e) {
+            return Optional.empty();
+        }
+
+        if (object == null) {
+            return Optional.empty();
+        }
+
+        final String name = object.get("name").getAsString();
+
+        final JsonArray properties = object.get("properties").getAsJsonArray();
+        for (final JsonElement property : properties) {
+            final JsonObject jsonObject = property.getAsJsonObject();
+            if(!jsonObject.get("name").getAsString().equals("textures")) {
+                continue;
+            }
+
+            final String value = jsonObject.get("value").getAsString();
+            final String signature = jsonObject.get("signature").getAsString();
+
+            return Optional.of(new UserSkinData(name, value, signature));
+        }
+
+        return Optional.empty();
     }
 }
