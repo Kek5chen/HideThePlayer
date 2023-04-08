@@ -17,35 +17,21 @@ public class PlayerFetcher {
 
     private PlayerFetcher() {}
 
-    public static Optional<UUID> getUUIDFromName(final String name) throws IOException {
+    public static Optional<UUID> getUUIDFromName(final String name) {
         if (UUID_MAP.containsKey(name)) {
             return Optional.of(UUID_MAP.get(name));
         }
 
-        final HttpURLConnection connection;
+        final JsonObject object;
         try {
-            connection = (HttpURLConnection) new URL(MOJANG_URL + name).openConnection();
-        } catch (final MalformedURLException ignored) {
+            object = getJSONData(name);
+        } catch (final IOException exception) {
             return Optional.empty();
         }
 
-        connection.setRequestMethod("GET");
-
-        if (connection.getResponseCode() == 400 || connection.getResponseCode() == 404) {
+        if (object == null) {
             return Optional.empty();
         }
-
-        // Only happens when the Mojang API breaks down
-        if(connection.getResponseCode() != 200) {
-            return Optional.empty();
-        }
-
-        final BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-        final JsonParser parser = new JsonParser();
-
-        final JsonObject object = parser.parse(in).getAsJsonObject();
-        in.close();
 
         final UUID uuid;
         try {
@@ -63,5 +49,34 @@ public class PlayerFetcher {
         UUID_MAP.put(name, uuid);
 
         return Optional.of(uuid);
+    }
+
+    private static JsonObject getJSONData(final String name) throws IOException {
+        final HttpURLConnection connection;
+        try {
+            connection = (HttpURLConnection) new URL(MOJANG_URL + name).openConnection();
+        } catch (final MalformedURLException ignored) {
+            return null;
+        }
+
+        connection.setRequestMethod("GET");
+
+        if (connection.getResponseCode() == 400 || connection.getResponseCode() == 404) {
+            return null;
+        }
+
+        // Only happens when the Mojang API breaks down
+        if(connection.getResponseCode() != 200) {
+            return null;
+        }
+
+        final BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+        final JsonParser parser = new JsonParser();
+
+        final JsonObject object = parser.parse(in).getAsJsonObject();
+        in.close();
+
+        return object;
     }
 }
